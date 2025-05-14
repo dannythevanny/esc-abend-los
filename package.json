@@ -1,6 +1,6 @@
 
 {
-  "name": "esc-abend-los",
+  "name": "esc-abend-vercel",
   "version": "1.0.0",
   "scripts": {
     "dev": "next dev",
