@@ -1,46 +1,57 @@
-
 import { useState } from "react";
 
 export default function Home() {
-  const [result, setResult] = useState(null);
-  const [loading, setLoading] = useState(false);
   const [name, setName] = useState("");
+  const [result, setResult] = useState<{ country: string; category: string } | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
 
-  const handleDraw = async () => {
-    setLoading(true);
-    const res = await fetch("/api/draw", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ name }),
-    });
-    const data = await res.json();
-    setResult(data);
-    setLoading(false);
-  };
+  async function draw() {
+    setIsLoading(true);
+    try {
+      const res = await fetch("/api/draw", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({ name }),
+      });
+
+      const data = await res.json();
+      setResult(data);
+    } catch (error) {
+      alert("Fehler beim Ziehen. Bitte versuch es erneut.");
+    } finally {
+      setIsLoading(false);
+    }
+  }
 
   return (
-    <div style={{ padding: "2rem", textAlign: "center" }}>
+    <div style={{ textAlign: "center", marginTop: "5rem" }}>
       <h1>ESC Losziehung 🎤</h1>
       <input
         type="text"
         placeholder="Dein Name"
         value={name}
         onChange={(e) => setName(e.target.value)}
-        style={{ padding: "0.5rem", marginBottom: "1rem" }}
+        style={{ padding: "0.5rem", fontSize: "1rem" }}
       />
       <br />
-      <button onClick={handleDraw} disabled={loading || !name}>
-        {loading ? "Ziehe..." : "Los ziehen"}
+      <button
+        style={{ marginTop: "1rem", padding: "0.5rem 1rem", fontSize: "1rem" }}
+        onClick={draw}
+        disabled={name.trim() === "" || isLoading}
+      >
+        {isLoading ? "Ziehe..." : "Ziehe!"}
       </button>
 
-      {result && result.country && (
-        <div style={{ marginTop: "2rem" }}>
-          <h2>🎉 Du hast gezogen:</h2>
-          <p>
-            <strong>{result.country}</strong> – {result.category}
-          </p>
+      {result && (
+        <div style={{ marginTop: "2rem", fontSize: "1.2rem" }}>
+          <p><strong>{name}</strong> hat gezogen:</p>
+          <p>🌍 Land: <strong>{result.country}</strong></p>
+          <p>🍽️ Kategorie: <strong>{result.category}</strong></p>
         </div>
       )}
     </div>
   );
 }
+
